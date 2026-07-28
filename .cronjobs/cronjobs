@@ -1,0 +1,3 @@
+# These are cron jobs added from .dotfiles repo instalation script (~/.dotfiles/.cronjobs/cronjobs)
+@hourly onedrive --synchronize
+

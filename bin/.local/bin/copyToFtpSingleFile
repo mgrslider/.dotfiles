@@ -1,0 +1,44 @@
+#!/usr/bin/sh
+
+set -e
+
+show_help() {
+    echo "Użycie: $0 [OPCJE] [FILE_PATH] [FTP_DESTINATION]"
+    echo "Opis: Skrypt do przenoszenia plików na ftp macro"
+    echo
+    echo "Opcje:"
+    echo "  -h, --help    Wyświetla tę pomoc i kończy działanie"
+    echo
+    echo "FILE_PATH: ścieżka do pliku lokalnego"
+    echo "FTP_DESTINATION: docelowa lokalizacja na ftp do którego będzie przeniesiony plik np: /tank/patryk/koms/"
+    echo "                 można tu również zmienić od razu znawę pliku bo jest on przenoszony z domyślnego folderu za pomocą mv"
+    echo "                 np: /tank/patryk/koms/test.abc"
+}
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+	    break
+            ;;
+    esac
+done
+
+filePath=$1
+file=$(basename $filePath)
+folder=$2
+escaped=$(echo "$file" | sed 's/(/\\(/g; s/)/\\)/g')
+
+echo "Executing: rsync -avz --progress $filePath mgrabowski@ftp-macro:/home/mgrabowski/"
+
+rsync -avz --progress $filePath mgrabowski@ftp-macro:/home/mgrabowski/
+
+echo "Executing: ssh ftp-macro \"sudo mv $escaped $folder\""
+
+ssh ftp-macro "sudo mv $escaped $folder"
+
+echo "Done"
+

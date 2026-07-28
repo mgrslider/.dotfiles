@@ -1,0 +1,60 @@
+#!/bin/bash
+set -e
+
+# Sprawdź czy uruchomiono jako root
+if [ "$EUID" -ne 0 ]; then
+    exec sudo "$0" "$@"
+fi
+
+USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+REPO="/backup/data"
+LOG="$USER_HOME/.local/log/borg-data.log"
+mkdir -p "$USER_HOME/.local/log"
+
+PASSPHRASE_FILE="/root/.config/borg/data.passphrase"
+if [ ! -f "$PASSPHRASE_FILE" ]; then
+    echo "BŁĄD: Brak pliku z hasłem: $PASSPHRASE_FILE"
+    echo "Uruchom ~/.dotfiles/install-scripts/backup.sh"
+    exit 1
+fi
+export BORG_PASSPHRASE=$(cat "$PASSPHRASE_FILE")
+
+echo "==> Backup /data $(date)" | tee -a "$LOG"
+
+if ! mountpoint -q /backup; then
+    echo "BŁĄD: /backup nie jest zamontowany" | tee -a "$LOG"
+    exit 1
+fi
+
+if ! mountpoint -q /data; then
+    echo "BŁĄD: /data nie jest zamontowany" | tee -a "$LOG"
+    exit 1
+fi
+
+borg create \
+    --verbose \
+    --filter AME \
+    --list \
+    --stats \
+    --show-rc \
+    --compression lz4 \
+    --exclude-caches \
+    --exclude '/data/steam' \
+    --exclude '/data/Steam' \
+    --exclude '/data/.Trash*' \
+    --exclude '/data/lost+found' \
+    "$REPO::data-{now:%Y-%m-%dT%H:%M}" \
+    /data \
+    2>&1 | tee -a "$LOG"
+
+borg prune \
+    --list \
+    --keep-daily 7 \
+    --keep-weekly 4 \
+    --keep-monthly 6 \
+    "$REPO" \
+    2>&1 | tee -a "$LOG"
+
+borg compact "$REPO" 2>&1 | tee -a "$LOG"
+
+echo "==> Backup zakończony $(date)" | tee -a "$LOG"

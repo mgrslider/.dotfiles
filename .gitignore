@@ -1,0 +1,3 @@
+nvim/.config/nvim/plugged/*
+*.tar.gz.gpg
+*.tar.gpg

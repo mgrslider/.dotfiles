@@ -1,0 +1,49 @@
+# This is Git's per-user configuration file.
+[user]
+	name = mgrillcoder
+    email = marcin.grabowski@proton.me
+
+# this is for separate user name and email for work stuff 
+# in this file is just [user] name = Marcin Grabowski email = mgrabowski@macro.local
+[includeIf "gitdir:/work/macro-system/**"]
+    path = /work/macro-system/.gitconfig
+[includeIf "gitdir:/work/system/**"]
+    path = /work/macro-system/.gitconfig
+[includeIf "gitdir:/work/aza/**"]
+    path = /work/aza/.gitconfig
+
+[alias]
+	tree = log --oneline --graph --decorate
+	treel = log --graph --decorate --compact-summary
+	tr = log --graph --oneline --decorate -100
+	tra = log --graph --oneline --decorate -100 --branches --all 
+	trl = log --graph --decorate -12 --compact-summary
+	st = status --short --branch
+	co = checkout
+	aliases = config --get-regexp '^alias\\.'
+	cm = commit -a
+	amend = commit --amend -a -C HEAD
+	fix-work-tree-remotes = config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*" 
+	lc = log-compact --graph --decorate --no-initials
+	cp = cherry-pick
+	pm = push macro
+	po = push origin
+	pmf = push macro --force-with-lease
+	pof = push origin --force-with-lease
+	droplastcommit = reset HEAD^
+	dropchanges = reset --hard 
+	loglast = !git log --oneline | head -n 1
+[http]
+	sslVerify = false
+	cookiefile = /home/mgrslider/.gitcookies
+[credential]
+	helper = store --file ~/.my-git-credentials
+	helper = cache --timeout 30000
+[core]
+	editor = nvim
+	pager = nvim -R -c 'set ft=git' -c 'set termguicolors' -c 'nnoremap q :q<CR>' -c 'AnsiEsc' -
+	autocrlf = input
+[color]
+	ui = auto
+[rerere]
+	enabled = true

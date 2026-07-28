@@ -1,0 +1,51 @@
+"" Source your .vimrc
+"source ~/.vimrc
+
+let mapleader = " "
+
+set number
+set relativenumber
+set scrolloff=5
+set showmode
+" Do incremental searching.
+set incsearch
+set hlsearch
+set commentary
+set surround
+set ideajoin
+set which-key
+" setting not to delete yank content with just visual selection
+set clipboard=unnamedplus
+set timeoutlen=5000
+
+let g:WhichKey_DefaultDelay = 900
+
+
+nnoremap <leader>e :e ~/.ideavimrc<CR>
+nnoremap <leader>ve :action IdeaVim.ReloadVimRc.reload<CR>
+
+
+nnoremap <leader>f :action ReformatCode<CR>
+nnoremap <leader>o :action OptimizeImports<CR>
+nnoremap <leader>rn :action RenameElement<CR>
+nnoremap <leader>c :action RenameElement<CR>
+nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
+
+" Don't use Ex mode, use Q for formatting.
+map Q gq
+
+vmap K :action MoveLineUp<CR>
+vmap J :action MoveLineDown<CR>
+
+" no clearing register when pasting over selection
+vnoremap p pgvy
+
+nmap gi :action GotoImplementation<CR>
+nmap gs :action GotoSuperMethod<CR>
+nmap gd :action GotoDeclaration<CR>
+nmap gf :action ShowUsages<CR>
+
+nnoremap <leader>rl yiw:s/\<<C-r>"\>//g<Left><Left>
+
+
+Plug 'machakann/vim-highlightedyank'

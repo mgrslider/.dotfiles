@@ -1,0 +1,153 @@
+#!/bin/bash
+# bt-rofi — Bluetooth manager z rofi/dmenu dla i3
+
+DMENU="rofi -dmenu -i -p Bluetooth"
+
+notify() {
+    notify-send -t 3000 "Bluetooth" "$1" 2>/dev/null || echo "$1"
+}
+
+bluetoothctl power on &>/dev/null
+
+main_menu() {
+    local status
+    status=$(bluetoothctl show | grep "Powered:" | awk '{print $2}')
+
+    local options="󰂯 Połącz ze znanym urządzeniem
+󰂰 Skanuj i paruj nowe urządzenie
+󰂲 Rozłącz urządzenie
+ Zaufaj urządzeniu
+󰂃 Usuń urządzenie
+󰐥 Adapter: $([[ "$status" == "yes" ]] && echo "WŁ → wyłącz" || echo "WYŁ → włącz")"
+
+    chosen=$(echo "$options" | $DMENU)
+    
+    case "$chosen" in
+        *"Połącz ze znanym"*)    connect_device ;;
+        *"Skanuj i paruj"*)      scan_and_pair ;;
+        *"Rozłącz"*)             disconnect_device ;;
+        *"Zaufaj"*)              trust_device ;;
+        *"Usuń"*)                remove_device ;;
+        *"Adapter"*)             toggle_power "$status" ;;
+    esac
+}
+
+pick_known_device() {
+    local devices
+    devices=$(bluetoothctl devices | while read -r _ mac name; do
+        # Sprawdź czy połączone
+        connected=$(bluetoothctl info "$mac" 2>/dev/null | grep "Connected: yes")
+        icon=$([[ -n "$connected" ]] && echo "󰂱" || echo "󰂯")
+        echo "$icon $name [$mac]"
+    done)
+
+    [[ -z "$devices" ]] && { notify "Brak znanych urządzeń"; return 1; }
+
+    chosen=$(echo "$devices" | $DMENU)
+    [[ -z "$chosen" ]] && return 1
+
+    # Wyciągnij MAC z nawiasów kwadratowych
+    echo "$chosen" | grep -oP '\[\K[A-F0-9:]+(?=\])'
+}
+
+connect_device() {
+    local mac
+    mac=$(pick_known_device) || return
+    notify "Łączenie z $mac..."
+    
+    if bluetoothctl connect "$mac" 2>&1 | grep -q "successful"; then
+        notify "Połączono z $mac"
+    else
+        notify "Nie udało się połączyć z $mac"
+    fi
+}
+
+disconnect_device() {
+    local connected_devices
+    connected_devices=$(bluetoothctl devices Connected | while read -r _ mac name; do
+        echo "󰂱 $name [$mac]"
+    done)
+
+    [[ -z "$connected_devices" ]] && { notify "Brak połączonych urządzeń"; return; }
+
+    chosen=$(echo "$connected_devices" | $DMENU)
+    [[ -z "$chosen" ]] && return
+
+    mac=$(echo "$chosen" | grep -oP '\[\K[A-F0-9:]+(?=\])')
+    bluetoothctl disconnect "$mac" &>/dev/null
+    notify "Rozłączono $mac"
+}
+
+scan_and_pair() {
+    notify "Skanowanie... (10s)"
+    
+    # Włącz skan na 10 sekund
+    bluetoothctl --timeout 10 scan on &>/dev/null
+
+    # Pobierz wszystkie urządzenia (nowe + znane)
+    local all_devices known_macs new_devices
+    known_macs=$(bluetoothctl devices | awk '{print $2}')
+    
+    # Filtruj tylko nowe (nieznane) urządzenia
+    new_devices=$(bluetoothctl devices | while read -r _ mac name; do
+        # Pokaż wszystkie znalezione — oznacz które są już znane
+        if echo "$known_macs" | grep -q "$mac"; then
+            echo "󰂯 $name [$mac] (znane)"
+        else
+            echo "󰂰 $name [$mac] (nowe)"
+        fi
+    done)
+
+    [[ -z "$new_devices" ]] && { notify "Nie znaleziono urządzeń"; return; }
+
+    chosen=$(echo "$new_devices" | $DMENU)
+    [[ -z "$chosen" ]] && return
+
+    mac=$(echo "$chosen" | grep -oP '\[\K[A-F0-9:]+(?=\])')
+
+    notify "Parowanie z $mac..."
+    
+    if bluetoothctl pair "$mac" 2>&1 | grep -q "successful"; then
+        notify "Sparowano z $mac"
+        
+        # Zapytaj czy zaufać i połączyć
+        action=$(echo -e "Tak, połącz i zaufaj\nNie, tylko sparuj" | $DMENU)
+        if [[ "$action" == *"Tak"* ]]; then
+            bluetoothctl trust "$mac" &>/dev/null
+            bluetoothctl connect "$mac" &>/dev/null
+            notify "Zaufano i połączono z $mac"
+        fi
+    else
+        notify "Parowanie nieudane — sprawdź czy urządzenie jest w trybie parowania"
+    fi
+}
+
+trust_device() {
+    local mac
+    mac=$(pick_known_device) || return
+    bluetoothctl trust "$mac" &>/dev/null
+    notify "Zaufano $mac"
+}
+
+remove_device() {
+    local mac
+    mac=$(pick_known_device) || return
+    
+    confirm=$(echo -e "Tak, usuń\nAnuluj" | $DMENU)
+    [[ "$confirm" == *"Tak"* ]] || return
+    
+    bluetoothctl remove "$mac" &>/dev/null
+    notify "Usunięto $mac"
+}
+
+toggle_power() {
+    if [[ "$1" == "yes" ]]; then
+        bluetoothctl power off &>/dev/null
+        notify "Bluetooth wyłączony"
+    else
+        bluetoothctl power on &>/dev/null
+        notify "Bluetooth włączony"
+    fi
+}
+
+main_menu

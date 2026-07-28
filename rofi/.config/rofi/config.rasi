@@ -1,0 +1,11 @@
+/** Basic config file **/
+
+configuration {
+  font : "Sora Regular 8";
+  show-icons: true;
+  icon-theme: "Papirus";
+  display-drun: "  ";
+  display-window: "﩯 ";
+  display-combi: "  ";
+}
+@theme "themes/sidetab-nord.rasi"

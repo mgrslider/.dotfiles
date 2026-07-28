@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+file=$1
+folder=$2
+
+echo "Executing: rsync -avz --rsync-path="sudo rsync" --progress $file mgrabowski@ftp-macro:/home/mgrabowski/$folder"
+
+rsync -avz --rsync-path="sudo rsync" --progress $file mgrabowski@ftp-macro:/home/mgrabowski/$folder
+

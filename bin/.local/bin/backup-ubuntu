@@ -1,0 +1,70 @@
+#!/bin/bash
+set -e
+
+# Sprawdź czy uruchomiono jako root
+if [ "$EUID" -ne 0 ]; then
+    exec sudo "$0" "$@"
+fi
+
+USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+REPO="/backup/ubuntu"
+LOG="$USER_HOME/.local/log/borg-ubuntu.log"
+mkdir -p "$USER_HOME/.local/log"
+
+PASSPHRASE_FILE="/root/.config/borg/ubuntu.passphrase"
+if [ ! -f "$PASSPHRASE_FILE" ]; then
+    echo "BŁĄD: Brak pliku z hasłem: $PASSPHRASE_FILE"
+    exit 1
+fi
+export BORG_PASSPHRASE=$(cat "$PASSPHRASE_FILE")
+
+echo "==> Backup Ubuntu $(date)" | tee -a "$LOG"
+
+if ! mountpoint -q /backup; then
+    echo "BŁĄD: /backup nie jest zamontowany" | tee -a "$LOG"
+    exit 1
+fi
+
+borg create \
+    --verbose \
+    --filter AME \
+    --list \
+    --stats \
+    --show-rc \
+    --compression lz4 \
+    --exclude-caches \
+    --exclude '/home/*/.cache' \
+    --exclude '/home/*/.local/share/Steam' \
+    --exclude '/home/*/.steam' \
+    --exclude '/home/*/OneDrive' \
+    --exclude '/home/*/Downloads' \
+    --exclude '/home/*/.local/share/lutris' \
+    --exclude 'home/*/.local/share/Trash' \
+    --exclude '/etc/luks-keys' \
+    --exclude '/var/cache' \
+    --exclude '/var/tmp' \
+    --exclude '/tmp' \
+    --exclude '/proc' \
+    --exclude '/sys' \
+    --exclude '/dev' \
+    --exclude '/run' \
+    --exclude '/snap' \
+    "$REPO::ubuntu-{now:%Y-%m-%dT%H:%M}" \
+    /etc \
+    /home \
+    /root \
+    /usr/local/bin \
+    /var/log \
+    2>&1 | tee -a "$LOG"
+
+borg prune \
+    --list \
+    --keep-daily 7 \
+    --keep-weekly 4 \
+    --keep-monthly 6 \
+    "$REPO" \
+    2>&1 | tee -a "$LOG"
+
+borg compact "$REPO" 2>&1 | tee -a "$LOG"
+
+echo "==> Backup zakończony $(date)" | tee -a "$LOG"

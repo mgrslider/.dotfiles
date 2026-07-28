@@ -1,0 +1,47 @@
+# =============================================================================
+# tmux-manager config
+# =============================================================================
+#
+#   
+# --- Poziomy skanowania folderów -------------------------------------------
+#
+# L0 — WYKLUCZONE ze skanowania (nawet jeśli wpadają przez inne poziomy)
+TMUX_DIRS_L0=(
+    "$HOME/.cache"
+    "$HOME/node_modules"
+    "/tmp"
+)
+
+# L1 — tylko SAM folder (bez podfolderów)
+TMUX_DIRS_L1=(
+    "$HOME"
+    "$HOME/.ssh"
+    "$HOME/.dotfiles"
+)
+
+# L2 — bezpośrednie podfoldery (głębokość 1)
+TMUX_DIRS_L2=(
+    "$HOME/projects"
+    "$HOME/work"
+    "/android/android-samsung-a14"
+    "/android/google-pixel-8"
+    # "/mnt/data/clients"
+)
+
+# L3 — podfoldery + ich podfoldery (głębokość 2)
+TMUX_DIRS_L3=(
+    "/work"
+    # "$HOME/repos"
+)
+
+# L4 — głębokość 3
+TMUX_DIRS_L4=(
+    # "$HOME/monorepo"
+    "/work/system"
+)
+
+# --- Opcje fzf ---------------------------------------------------------------
+# Dodatkowe flagi przekazywane do fzf (opcjonalne)
+FZF_TMUX_OPTS=""
+# Przykład: wyświetl fzf w popupie tmux zamiast pełnego ekranu
+# FZF_TMUX_OPTS="--height=50%"

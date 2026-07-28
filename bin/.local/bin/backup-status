@@ -1,0 +1,198 @@
+#!/usr/bin/env bash
+# backup-status — sprawdza stan backupów borgbackup
+set -euo pipefail
+
+# ── Kolory ────────────────────────────────────────────────────────────────────
+RED='\033[0;31m'; YELLOW='\033[1;33m'; GREEN='\033[0;32m'
+CYAN='\033[0;36m'; BOLD='\033[1m'; RESET='\033[0m'
+
+ok()   { echo -e "  ${GREEN}✓${RESET} $*"; }
+warn() { echo -e "  ${YELLOW}⚠${RESET} $*"; }
+err()  { echo -e "  ${RED}✗${RESET} $*"; }
+hdr()  { echo -e "\n${BOLD}${CYAN}▶ $*${RESET}"; }
+
+DRY_RUN=false
+[[ "${1:-}" == "--dry-run" || "${1:-}" == "-n" ]] && DRY_RUN=true
+
+# ── Wykryj system ─────────────────────────────────────────────────────────────
+HOST=$(hostname)
+case "$HOST" in
+  omarchy*) SYSTEM="omarchy" ;;
+  ubuntu*)  SYSTEM="ubuntu"  ;;
+  *)        SYSTEM="unknown" ;;
+esac
+
+# ── Konfiguracja per system ───────────────────────────────────────────────────
+# Równoległe tablice: NAMES / REPOS / TIMERS / EXPECTED_HOURS / PASSPHRASES / SRCS
+BACKUP_DISK="/backup"
+
+case "$SYSTEM" in
+  omarchy)
+    NAMES=(     "omarchy"                            "data"                        )
+    REPOS=(     "/backup/omarchy"                    "/backup/data"                )
+    TIMERS=(    "backup-omarchy.timer"               "backup-data.timer"           )
+    EXPECTED=(  24                                   24                            )
+    PASSPHRASES=("/root/.config/borg/omarchy.passphrase" "/root/.config/borg/data.passphrase")
+    SRCS=(      "$HOME"                              "/data"                       )
+    ;;
+  ubuntu)
+    NAMES=(     "ubuntu"                             "data"                        )
+    REPOS=(     "/backup/ubuntu"                     "/backup/data"                )
+    TIMERS=(    "backup-ubuntu.timer"                "backup-data.timer"           )
+    EXPECTED=(  24                                   24                            )
+    PASSPHRASES=("/root/.config/borg/ubuntu.passphrase" "/root/.config/borg/data.passphrase")
+    SRCS=(      "$HOME"                              "/data"                       )
+    ;;
+  *)
+    echo -e "${RED}Nieznany host: $HOST${RESET}"
+    exit 1
+    ;;
+esac
+
+# ── Pomocnicze ────────────────────────────────────────────────────────────────
+set_borg_pass() {
+  local pf=$1
+  local pass
+  if [[ -r "$pf" ]]; then
+    pass=$(cat "$pf")
+  elif pass=$(sudo cat "$pf" 2>/dev/null); then
+    tput cuu1; 
+    tput cuu1;
+    tput ed
+    : # ok
+  else
+    err "Brak dostępu do passphrase: $pf"
+    export BORG_PASSPHRASE=""
+    export BORG_PASSCOMMAND="false"  # zapobiega interaktywnemu pytaniu
+    return 1
+  fi
+  export BORG_PASSPHRASE="$pass"
+  unset BORG_PASSCOMMAND
+}
+
+hours_since() {
+  local now; now=$(date +%s)
+  local then; then=$(date -d "$1" +%s 2>/dev/null || echo 0)
+  echo $(( (now - then) / 3600 ))
+}
+
+human_ago() {
+  local h=$1
+  if   (( h <  1 )); then echo "< 1h temu"
+  elif (( h < 24 )); then echo "${h}h temu"
+  elif (( h < 48 )); then echo "1 dzień temu"
+  else echo "$(( h / 24 )) dni temu"
+  fi
+}
+
+# ── Sekcja 1: Dysk ───────────────────────────────────────────────────────────
+hdr "Dysk backupów: $BACKUP_DISK"
+if df "$BACKUP_DISK" &>/dev/null; then
+  usage=$(df -h "$BACKUP_DISK" | awk 'NR==2 {printf "użyte: %s / %s (%s wolne)", $3, $2, $4}')
+  avail_pct=$(df "$BACKUP_DISK" | awk 'NR==2 {gsub(/%/,"",$5); print 100-$5}')
+  echo "  $usage"
+  if   (( avail_pct < 10 )); then err  "Mało miejsca! Zostało tylko ${avail_pct}%"
+  elif (( avail_pct < 25 )); then warn "Miejsce się kończy — ${avail_pct}% wolne"
+  else                             ok   "Miejsca wystarczy (${avail_pct}% wolne)"
+  fi
+else
+  err "$BACKUP_DISK nie jest zamontowany"
+fi
+
+# ── Sekcja 2: Ostatnie backupy ────────────────────────────────────────────────
+hdr "Ostatnie archiwa borg"
+
+for i in "${!NAMES[@]}"; do
+  name="${NAMES[$i]}"
+  repo="${REPOS[$i]}"
+  expected="${EXPECTED[$i]}"
+  pf="${PASSPHRASES[$i]}"
+
+  echo -e "\n  ${BOLD}[$name]${RESET}  repo: $repo"
+
+  if [[ ! -d "$repo" ]]; then
+    err "Repo nie istnieje: $repo"
+    continue
+  fi
+
+  set_borg_pass "$pf" || continue
+
+  last_ts=$(sudo -E borg list "$repo" --format '{time}' --last 1 2>/dev/null | awk '{print $2, $3}')
+  if [[ -z "$last_ts" ]]; then
+    err "Brak archiwów w repo"
+    continue
+  fi
+
+  last_name=$(sudo -E borg list "$repo" --format '{archive}' --last 1 2>/dev/null)
+  h=$(hours_since "$last_ts")
+  ago=$(human_ago "$h")
+
+  if   (( h > expected * 2 )); then err  "Ostatni: $last_name — $ago (oczekiwany co ${expected}h!)"
+  elif (( h > expected     )); then warn "Ostatni: $last_name — $ago (lekko po terminie)"
+  else                               ok   "Ostatni: $last_name — $ago"
+  fi
+
+  sudo -E borg info "$repo" --last 1 2>/dev/null \
+    | grep -E 'This archive|All archives' \
+    | sed 's/^/    /' \
+    || true
+done
+
+# ── Sekcja 3: Systemd timery ──────────────────────────────────────────────────
+hdr "Systemd timery"
+
+for i in "${!NAMES[@]}"; do
+  name="${NAMES[$i]}"
+  timer="${TIMERS[$i]}"
+
+  echo -e "\n  ${BOLD}[$name]${RESET}  timer: $timer"
+
+  if ! systemctl list-unit-files "$timer" &>/dev/null; then
+    err "Timer nie istnieje: $timer"
+    continue
+  fi
+
+  active=$(systemctl is-active  "$timer" 2>/dev/null || echo "inactive")
+  enabled=$(systemctl is-enabled "$timer" 2>/dev/null || echo "disabled")
+
+  [[ "$active"  == "active"  ]] && ok  "aktywny"  || err  "nieaktywny ($active)"
+  [[ "$enabled" == "enabled" ]] && ok  "włączony" || warn "wyłączony ($enabled)"
+
+  next=$(systemctl list-timers "$timer" --no-pager 2>/dev/null | awk 'NR==2 {print $1, $2, $3}')
+  [[ -n "$next" ]] && echo -e "    następny: $next"
+done
+
+# ── Sekcja 4: Dry run ─────────────────────────────────────────────────────────
+if $DRY_RUN; then
+  hdr "Dry run backupów"
+
+  for i in "${!NAMES[@]}"; do
+    name="${NAMES[$i]}"
+    repo="${REPOS[$i]}"
+    src="${SRCS[$i]}"
+    pf="${PASSPHRASES[$i]}"
+
+    echo -e "\n  ${BOLD}[$name]${RESET}  $src → $repo"
+
+    if [[ ! -d "$repo" ]]; then err "Repo nie istnieje — pomijam"; continue; fi
+    if [[ ! -d "$src"  ]]; then err "Źródło nie istnieje: $src — pomijam"; continue; fi
+
+    set_borg_pass "$pf" || continue
+
+    echo -e "  ${CYAN}borg create --dry-run --list --stats${RESET}"
+    sudo -E borg create \
+      --dry-run \
+      --list \
+      --stats \
+      --filter AME \
+      --compression lz4 \
+      --exclude-caches \
+      --exclude "$HOME/.cache" \
+      --exclude "$HOME/.local/share/Trash" \
+      "${repo}::dryrun-{now:%Y-%m-%dT%H:%M}" \
+      "$src" 2>&1 | tail -20
+  done
+fi
+
+hdr "Gotowe"
+echo ""

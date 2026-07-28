@@ -1,0 +1,89 @@
+#!/bin/sh
+
+DEFAULT_OUTPUT="$(date +'%Y-%m-%d_%H:%M:%S').log"
+OUTPUT_FILE="$DEFAULT_OUTPUT"
+CLEAR_LOGS="no"
+
+while getopts "c" opt; do
+    case $opt in
+        c) CLEAR_LOGS="yes" ;;
+        ?) echo "Nieznana opcja: -$OPTARG"; exit 1 ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ -n "$1" ]; then
+    case "$1" in
+        *.*) OUTPUT_FILE="$1" ;;
+        *) OUTPUT_FILE="$1.log" ;;
+    esac
+fi
+
+if [ "$OUTPUT_FILE" = "$DEFAULT_OUTPUT" ]; then
+    echo "Nie podano nazwy pliku, używam domyślnej: $DEFAULT_OUTPUT"
+fi
+echo "Start: $OUTPUT_FILE at $(date +'%Y-%m-%d_%H:%M:%S')" > "$OUTPUT_FILE"
+
+if [ "$CLEAR_LOGS" = "yes" ]; then
+    echo "Czyszczę bufor logcata"
+fi
+
+echo "Naciśnij spację, aby zakończyć, lub 'm', aby dodać znacznik..."
+
+MARK_COUNTER=0
+START_TIME=$(date +%s)
+
+if [ "$CLEAR_LOGS" = "yes" ]; then
+    adb logcat -c && adb logcat -v time >> "$OUTPUT_FILE" 2>/dev/null &
+else
+    adb logcat -v time >> "$OUTPUT_FILE" 2>/dev/null &
+fi
+
+LOG_PID=$!
+
+cleanup() {
+    kill $LOG_PID 2>/dev/null
+    CURRENT_TIME=$(date +%s)
+    ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
+    LINE_COUNT=$(wc -l < "$OUTPUT_FILE" 2>/dev/null || echo 0)
+    printf "\rCzas: %ds | Plik: %s | Znaczniki: %d | Linie: %d\n" "$ELAPSED_TIME" "$OUTPUT_FILE" "$MARK_COUNTER" "$LINE_COUNT"
+    echo "Logowanie zakończone. Plik zapisany jako: $OUTPUT_FILE"
+    stty icanon echo # Przywróć ustawienia terminala
+    exit 0
+}
+
+trap cleanup INT TERM
+
+stty -icanon -echo
+
+check_key() {
+    # Użyj dd z timeoutem 0.1s, aby nie blokować pętli
+    key=$(dd bs=1 count=1 2>/dev/null iflag=nonblock)
+    if [ "$key" = " " ]; then
+        echo "" # Nowa linia dla czytelności
+        cleanup
+    elif [ "$key" = "m" ]; then
+        MARK_COUNTER=$((MARK_COUNTER + 1))
+        echo ">>>>>>>>>> MARK ($MARK_COUNTER) <<<<<<<<<<" >> "$OUTPUT_FILE"
+    fi
+}
+
+while true; do
+    # Sprawdź, czy proces logcat nadal działa
+    if ! kill -0 $LOG_PID 2>/dev/null; then
+        echo ""
+        echo "adb logcat zakończył się lub rzucił błąd."
+        cleanup
+    fi
+
+    CURRENT_TIME=$(date +%s)
+    ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
+
+    LINE_COUNT=$(wc -l < "$OUTPUT_FILE" 2>/dev/null || echo 0)
+
+    printf "\rCzas: %ds | Plik: %s | Znaczniki: %d | Linie: %d  " "$ELAPSED_TIME" "$OUTPUT_FILE" "$MARK_COUNTER" "$LINE_COUNT"
+
+    check_key
+
+    sleep 0.1
+done

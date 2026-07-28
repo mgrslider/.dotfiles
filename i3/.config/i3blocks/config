@@ -1,0 +1,49 @@
+# Globalne ustawieni# Globalne ustawienia
+[global]
+interval=1
+color=#FFFFFF
+
+[volume]
+label=volume 
+command=~/.config/i3blocks/scripts/volume.sh
+interval=once
+signal=10
+
+[cpu_usage]
+label=cpu:
+command=mpstat 1 1 | awk '/Average:/ {print 100-$NF"%"}'
+format=$label $output
+interval=5
+
+[cpu_temperature]
+label=cpu_temp:
+command=sh -c 'temp=$(cat /sys/class/thermal/thermal_zone0/temp); temp=$((temp/1000)); if [ $temp -ge 70 ]; then color="#FF0000"; elif [ $temp -ge 50 ]; then color="#FFFF00"; else color="#00FF00"; fi; printf "$temp °C\n\n$color"'
+format=$label $output
+interval=5
+
+[load]
+label=load:
+command=uptime | awk -F'load average:' '{print $2}' | awk '{print $1}'
+format=$label $output
+interval=5
+
+[memory]
+label=RAM:
+command=free -b | awk '/Mem:/ {printf "%.1f / %.1f GB", $3/1000000000, $2/1000000000}'
+format=$label $output
+interval=5
+
+[time]
+command=date '+%Y-%m-%d %H:%M:%S'
+interval=1
+
+# BEGIN VPN AUTOGEN
+[vpn_gajdy]
+command=~/.config/i3blocks/scripts/vpn_generic.sh gajdy
+interval=3
+
+[vpn_morfeusz]
+command=~/.config/i3blocks/scripts/vpn_generic.sh morfeusz
+interval=3
+
+# END VPN AUTOGEN

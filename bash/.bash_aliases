@@ -1,0 +1,10 @@
+alias vim='nvim'
+alias ga='nvim -c "Git" -c "wincmd o"'
+alias suspend='systemctl suspend'
+alias ssh-up='eval $(ssh-agent -s)'
+alias adb-check-device-arch='adb shell getprop ro.product.cpu.abi'
+alias adb-read-allprop='adb shell getprop'
+alias mkdir='mkdir -p'
+alias cp='cp -i'
+alias less='less -R'
+

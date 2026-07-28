@@ -36,17 +36,6 @@ export LESS_TERMCAP_so=$'\E[01;44;33m'
 export LESS_TERMCAP_ue=$'\E[0m'
 export LESS_TERMCAP_us=$'\E[01;32m'
 
-# EDYTOR
-export EDITOR=nvim
-export VISUAL=nvim
-
-export XDG_CONFIG_HOME=$HOME/.config
-export IGNOREEOF=5
-export JAVA_HOME=/usr/lib/jvm/default
-export ANDROID_NDK_ROOT=/home/mgrslider/Android/Ndk/android-ndk-r27
-export DIARY_PATH=/work/notes/my-diary
-export DIARY_INTERVAL=10
-
 git() {
     if [ "$1" = "am" ]; then
         echo "Komenda 'git am' została zablokowana!"
@@ -105,8 +94,3 @@ fi
 # <<< tmux-manager <
 
 eval "$(starship init bash)"
-
-export NVM_DIR="$HOME/.config/nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-. "$HOME/.cargo/env"

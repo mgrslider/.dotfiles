@@ -17,7 +17,7 @@ for folder in $(echo "$STOW_FOLDERS" | sed "s;,; ;g"); do
     stow --simulate "$folder" 2>&1 | grep "existing target" | \
         sed "s/.*over existing target //" | sed "s/ since.*//" | \
         while read target; do
-            rm -rf "$HOME/$target"
+            [ -n "$target" ] && rm -rf "$HOME/$target"
         done || true
     stow -D "$folder" 2>/dev/null || true
     stow "$folder"

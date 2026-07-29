@@ -25,27 +25,18 @@ if [ "$DISTRO" = "fedora" ]; then
     sudo dnf copr enable -y atim/starship
     sudo dnf copr enable -y zeno/scrcpy
 
-    # --- RPM Fusion (nvidia, kodeki) ---
-    sudo dnf install -y \
-        https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
-        https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
-
-    # --- Sterownik nvidia ---
-    sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda xorg-x11-drv-nvidia-libs.i686
-
     PACKAGES=(
-        i3blocks git vim neovim ghostty stow fzf
-        unzip curl gnupg rsync htop 
+        i3 i3blocks git vim neovim ghostty 
+        unzip curl gnupg rsync htop
+        pv gnupg2 tar fzf stow
         rofi feh redshift maim xclip
-        xdotool ddcutil lm_sensors smartmontools NetworkManager
-        network-manager-applet NetworkManager-openvpn openvpn
-        blueman bluez firefox thunderbird
+        xdotool ddcutil lm_sensors smartmontools
+        openvpn  firefox thunderbird
         libreoffice keepassxc nautilus
         rclone pipewire pipewire-pulse
         pipewire-alsa wireplumber pavucontrol
-        nvidia-settings bash-completion
-        steam xorg-x11-xinit xorg-x11-drv-nvidia-libs.i686
-        scrcpy starship 
+        steam xorg-x11-xinit 
+        bash-completion scrcpy starship 
     )
 
     sudo dnf install -y "${PACKAGES[@]}"

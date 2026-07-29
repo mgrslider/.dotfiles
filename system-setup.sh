@@ -6,7 +6,7 @@ if [ -f "$MARKER" ]; then
     echo "Skrypt już został wykonany, jeżeli chcesz go wykonać jeszcze raz usuń $MARKER"
     exit 0
 fi
-touch "$MARKER"
+sudo touch "$MARKER"
 
 if [ -f /etc/os-release ]; then
     . /etc/os-release
@@ -20,8 +20,10 @@ echo "==> [1/4] Instalacja pakietów"
 
 
 if [ "$DISTRO" = "fedora" ]; then
-    # --- COPR: ghostty ---
-    sudo dnf copr enable -y scottames/ghostty
+    # --- COPR ---
+    sudo dnf copr enable -y scottames/ghostty 
+    sudo dnf copr enable -y atim/starship
+    sudo dnf copr enable -y zeno/scrcpy
 
     # --- RPM Fusion (nvidia, kodeki) ---
     sudo dnf install -y \
@@ -31,14 +33,10 @@ if [ "$DISTRO" = "fedora" ]; then
     # --- Sterownik nvidia ---
     sudo dnf install -y akmod-nvidia xorg-x11-drv-nvidia-cuda xorg-x11-drv-nvidia-libs.i686
 
-    # --- Grupa Development Tools (odpowiednik base-devel) ---
-    sudo dnf group install -y "Development Tools"
-
     PACKAGES=(
         i3blocks git vim neovim ghostty stow fzf
-        unzip curl gnupg rsync htop cmake
-        ninja ccache golang python3 android-tools
-        scrcpy rofi feh redshift starship maim xclip
+        unzip curl gnupg rsync htop 
+        rofi feh redshift maim xclip
         xdotool ddcutil lm_sensors smartmontools NetworkManager
         network-manager-applet NetworkManager-openvpn openvpn
         blueman bluez firefox thunderbird
@@ -46,16 +44,46 @@ if [ "$DISTRO" = "fedora" ]; then
         rclone pipewire pipewire-pulse
         pipewire-alsa wireplumber pavucontrol
         nvidia-settings bash-completion
-        steam xorg-x11-xinit
+        steam xorg-x11-xinit xorg-x11-drv-nvidia-libs.i686
+        scrcpy starship 
     )
 
     sudo dnf install -y "${PACKAGES[@]}"
 fi
 if [ "$DISTRO" = "debian" ]; then
-    sudo apt install -y 
+    sudo apt update
+    sudo apt install -y \
+        alacritty
+        i3blocks git vim neovim stow fzf \
+        unzip curl gnupg rsync htop \
+        rofi feh redshift maim xclip \
+        xdotool ddcutil lm-sensors smartmontools network-manager \
+        network-manager-gnome network-manager-openvpn openvpn \
+        blueman bluez firefox-esr thunderbird \
+        libreoffice keepassxc nautilus \
+        rclone pipewire pipewire-pulse \
+        pipewire-alsa wireplumber pavucontrol \
+        bash-completion xinit scrcpy
+
+    # --- Włącz contrib + non-free + i386 (dla nvidia i steam) ---
+    sudo apt install -y software-properties-common
+    sudo add-apt-repository -y contrib non-free non-free-firmware
+    sudo dpkg --add-architecture i386
+    sudo apt update
+
+    # --- Sterownik nvidia ---
+    sudo apt install -y nvidia-driver nvidia-settings
+
+    # --- Steam ---
+    sudo apt install -y steam-installer
+
+    # --- starship (brak w apt) ---
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
 fi
 echo "==> [2/4] Pobieranie dotfiles"
 
+rm -rdf ~/.dotfiles
 git clone https://github.com/mgrslider/.dotfiles.git ~/.dotfiles
 
 echo "==> [3/4] Instalacja dotfiles"

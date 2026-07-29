@@ -64,3 +64,4 @@ unset PASS PASS2
 
 rm -rf "$BACKUP_DIR"
 echo "Gotowe: backup_$(date +%Y%m%d).tar.gpg"
+echo "Nie zapomnij system-setup.sh"

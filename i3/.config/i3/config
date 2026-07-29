@@ -29,8 +29,13 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 # and nm-applet is a desktop environment-independent system tray GUI for it.
 exec --no-startup-id nm-applet
 
-
+exec_always --no-startup-id setxkbmap -option caps:escape
 exec_always --no-startup-id ~/.config/i3blocks/scripts/volume_watch.sh
+exec_always --no-startup-id ~/.config/i3blocks/scripts/generate_vpn_blocks.sh
+# This is needed for programs with sudo prompt
+exec --no-startup-id lxpolkit
+
+
 set $refresh_i3status killall -SIGUSR1 i3status
 bindsym XF86AudioRaiseVolume exec --no-startup-id amixer -D pulse set Master 5%+ && pkill -RTMIN+10 i3blocks
 bindsym XF86AudioLowerVolume exec --no-startup-id amixer -D pulse set Master 5%- && pkill -RTMIN+10 i3blocks
@@ -199,7 +204,3 @@ bindsym Ctrl+$mod+Print exec --no-startup-id maim --window $(xdotool getactivewi
 bindsym Ctrl+Shift+Print exec --no-startup-id maim --select | xclip -selection clipboard -t image/png
 
 focus_follows_mouse no
-# This is needed for programs with sudo prompt
-exec --no-startup-id lxpolkit
-
-exec_always --no-startup-id ~/.config/i3blocks/scripts/generate_vpn_blocks.sh

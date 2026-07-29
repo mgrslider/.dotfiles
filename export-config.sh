@@ -1,8 +1,17 @@
 #!/bin/bash
 set -e
 
-# pv wymagany dla progressu
-command -v pv &>/dev/null || sudo pacman -S --needed --noconfirm pv
+if ! command -v pv &>/dev/null; then
+  if command -v dnf &>/dev/null; then
+    sudo dnf install -y pv gnupg2 tar
+  elif command -v apt &>/dev/null; then
+    sudo apt update && sudo apt install -y pv gnupg tar
+  elif command -v pacman &>/dev/null; then
+    sudo pacman -S --needed --noconfirm pv gnupg tar
+  else
+    echo "Nieznany menedżer pakietów"; exit 1
+  fi
+fi
 
 BACKUP_DIR=~/backup_export
 rm -rdf "$BACKUP_DIR"
@@ -22,6 +31,7 @@ copy_item() {
 }
 
 # Kopiowanie danych
+cp ~/.my-git-credentials "$BACKUP_DIR/my-git-credentials"
 cp -r ~/.ssh "$BACKUP_DIR/ssh"
 chmod 700 "$BACKUP_DIR/ssh"
 chmod 600 "$BACKUP_DIR/ssh/"* 2>/dev/null || true
@@ -30,13 +40,10 @@ chmod 644 "$BACKUP_DIR/ssh/"*.pub 2>/dev/null || true
 sudo cp -r /etc/openvpn "$BACKUP_DIR/openvpn"
 sudo chown -R "$USER:$USER" "$BACKUP_DIR/openvpn"
 
-copy_item ~/.thunderbird "$BACKUP_DIR/thunderbird" "thunderbird"
-
-cp ~/.my-git-credentials "$BACKUP_DIR/my-git-credentials"
-
 sudo cp /etc/hosts "$BACKUP_DIR/hosts"
 sudo chown "$USER:$USER" "$BACKUP_DIR/hosts"
 
+copy_item ~/.thunderbird "$BACKUP_DIR/thunderbird" "thunderbird"
 
 # Pakowanie + szyfrowanie (AES-256)
 read -s -p "Podaj hasło do archiwum: " PASS; echo

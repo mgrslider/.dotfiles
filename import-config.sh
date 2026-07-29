@@ -7,7 +7,17 @@ if [ -z "$FILE" ]; then
   exit 1
 fi
 
-command -v pv &>/dev/null || sudo pacman -S --needed --noconfirm sudo gnupg tar pv
+if ! command -v pv &>/dev/null || ! command -v gpg &>/dev/null || ! command -v tar &>/dev/null; then
+  if command -v dnf &>/dev/null; then
+    sudo dnf install -y pv gnupg2 tar
+  elif command -v apt &>/dev/null; then
+    sudo apt update && sudo apt install -y pv gnupg tar
+  elif command -v pacman &>/dev/null; then
+    sudo pacman -S --needed --noconfirm pv gnupg tar
+  else
+    echo "Nieznany menedżer pakietów"; exit 1
+  fi
+fi
 
 copy_item() {
   local src=$1 dst=$2 label=$3
@@ -41,6 +51,10 @@ sudo cp -r "$RESTORE_DIR/openvpn" /etc/openvpn
 
 # Thunderbird
 copy_item "$RESTORE_DIR/thunderbird" ~/.thunderbird "thunderbird"
+
+#git-credentials
+cp "$RESTORE_DIR/my-git-credentials" ~/.my-git-credentials
+chmod 600 ~/.my-git-credentials
 
 # hosts
 sudo cp "$RESTORE_DIR/hosts" /etc/hosts

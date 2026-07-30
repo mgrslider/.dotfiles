@@ -31,6 +31,7 @@ step1_packages() {
         sudo pacman -S --needed --noconfirm "${PACKAGES[@]}"
         sudo pacman -S --needed --noconfirm libreoffice-still
         sudo systemctl enable NetworkManager
+        sudo localectl set-keymap pl
     fi
     if [ "$DISTRO" = "fedora" ]; then
         sudo dnf copr enable -y scottames/ghostty

@@ -1,17 +1,20 @@
 #!/bin/bash
+SINK="@DEFAULT_AUDIO_SINK@"
 
 case "$BLOCK_BUTTON" in
-    1) amixer -D pulse set Master toggle > /dev/null ;;   # LMB – mute/unmute
-    3) pavucontrol & ;;                                     # PPM – otwórz mixer
-    4) amixer -D pulse set Master 5%+ > /dev/null ;;        # scroll góra
-    5) amixer -D pulse set Master 5%- > /dev/null ;;        # scroll dół
+    1) wpctl set-mute "$SINK" toggle ;;         # LMB – mute/unmute
+    3) pavucontrol & ;;                        # PPM – otwórz mixer
+    4) wpctl set-volume "$SINK" 5%+ ;;         # scroll góra
+    5) wpctl set-volume "$SINK" 5%- ;;         # scroll dół
 esac
 
-vol=$(amixer -D pulse get Master | awk -F'[][]' '/Left:/ {print $2}')
-muted=$(amixer -D pulse get Master | grep -o "off" | head -1)
+# Get volume state from wpctl
+# Output example: "Volume: 0.45" or "Volume: 0.45 [MUTED]"
+status=$(wpctl get-volume "$SINK")
 
-if [ "$muted" = "off" ]; then
+if echo "$status" | grep -q "MUTED"; then
     echo "muted"
 else
-    echo "$vol"
+    # Converts 0.45 into 45% using awk arithmetic
+    echo "$status" | awk '{print int($2 * 100)"%"}'
 fi

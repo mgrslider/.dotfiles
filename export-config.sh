@@ -42,6 +42,10 @@ sudo chown -R "$USER:$USER" "$BACKUP_DIR/openvpn"
 
 sudo cp /etc/hosts "$BACKUP_DIR/hosts"
 sudo chown "$USER:$USER" "$BACKUP_DIR/hosts"
+sudo grep -E '^\s*[^#].*\s(/work|/data|/backup)\s' /etc/fstab > "$BACKUP_DIR/fstab_snippet"
+sudo chown "$USER:$USER" "$BACKUP_DIR/fstab_snippet"
+sudo cp /etc/crypttab "$BACKUP_DIR/crypttab"
+sudo chown "$USER:$USER" "$BACKUP_DIR/crypttab"
 
 copy_item ~/.thunderbird "$BACKUP_DIR/thunderbird" "thunderbird"
 

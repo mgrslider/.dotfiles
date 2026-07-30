@@ -59,5 +59,12 @@ chmod 600 ~/.my-git-credentials
 # hosts
 sudo cp "$RESTORE_DIR/hosts" /etc/hosts
 
+sudo cp "$RESTORE_DIR/crypttab" /etc/crypttab
+sudo tee -a /etc/fstab < "$RESTORE_DIR/fstab_snippet" > /dev/null
+
+# weryfikacja fstab
+sudo systemctl daemon-reload
+sudo mount -a && echo "OK — montowanie działa." || echo "BŁĄD montowania — sprawdź $FSTAB!"
+
 rm -rf "$RESTORE_DIR"
 echo "Przywrócono."

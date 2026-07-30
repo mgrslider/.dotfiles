@@ -51,6 +51,6 @@ fi
 
 echo ""
 
-i3-msg restart
+i3-msg restart || true
 
 echo "==> install.sh gotowe!"

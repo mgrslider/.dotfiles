@@ -7,7 +7,7 @@ MARKER_END="# END VPN AUTOGEN"
 sed -i "/$MARKER_START/,/$MARKER_END/d" "$CONFIG"
 
 # Znajdź wszystkie configi openvpn@*
-VPN_LIST=$(systemctl list-units --type=service --all --no-legend | grep -oP '(?<=openvpn@)[^. ]+(?=\.service)')
+VPN_LIST=$(ls /etc/openvpn/client/ 2>/dev/null | grep '\.conf$' | sed 's/\.conf$//')
 
 {
     echo "$MARKER_START"

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Argument $1 = nazwa VPN
 VPN_NAME="$1"
-SERVICE="openvpn@${VPN_NAME}"
+SERVICE="openvpn-client@${VPN_NAME}"
 
 if [[ "$BLOCK_BUTTON" == "1" ]]; then
     if systemctl is-active --quiet "$SERVICE"; then

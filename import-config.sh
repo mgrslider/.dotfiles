@@ -49,16 +49,7 @@ git -C ~/.dotfiles remote set-url origin git@github.com:mgrslider/.dotfiles.git
 # OpenVPN
 sudo mkdir -p /etc/openvpn
 sudo cp -r "$RESTORE_DIR/openvpn/." /etc/openvpn/
-USER_NAME="${SUDO_USER:-$USER}"
-RULE_FILE="/etc/sudoers.d/openvpn-i3"
-
-cat > /tmp/openvpn-i3 <<EOF
-$USER_NAME ALL=(root) NOPASSWD: /usr/bin/systemctl start openvpn-client@*, /usr/bin/systemctl stop openvpn-client@*, /usr/bin/systemctl is-active openvpn-client@*, /bin/ls /etc/openvpn/client/
-EOF
-# Walidacja składni przed instalacją
-sudo visudo -c -f /tmp/openvpn-i3
-sudo install -m 440 -o root -g root /tmp/openvpn-i3 "$RULE_FILE"
-rm /tmp/openvpn-i3
+sudo setfacl -m u:$USER:rx /etc/openvpn/client/
 
 # Thunderbird
 copy_item "$RESTORE_DIR/thunderbird" ~/.thunderbird "thunderbird"

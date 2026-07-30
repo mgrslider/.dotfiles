@@ -23,10 +23,12 @@ step1_packages() {
             xdotool ddcutil lm_sensors smartmontools
             openvpn networkmanager network-manager-applet
             firefox thunderbird keepassxc nautilus
-            rclone pipewire pipewire-pulse
-            pipewire-alsa wireplumber pavucontrol
+            rclone pavucontrol wireplumber
+            pipewire pipewire-pulse pipewire-alsa 
             xorg-xinit xorg-server
             bash-completion scrcpy starship
+            tree-sitter tree-sitter-cli
+            ttf-nerd-fonts-symbols
         )
         sudo pacman -S --needed --noconfirm "${PACKAGES[@]}"
         sudo pacman -S --needed --noconfirm libreoffice-still

@@ -47,7 +47,7 @@ sudo chown "$USER:$USER" "$BACKUP_DIR/fstab_snippet"
 sudo cp /etc/crypttab "$BACKUP_DIR/crypttab"
 sudo chown "$USER:$USER" "$BACKUP_DIR/crypttab"
 sudo cp -r /etc/luks-keys "$BACKUP_DIR/luks-keys"
-sudo chown "$USER:$USER" "$BACKUP_DIR/luks-keys"
+sudo chown -R "$USER:$USER" "$BACKUP_DIR/luks-keys"
 
 copy_item ~/.thunderbird "$BACKUP_DIR/thunderbird" "thunderbird"
 

@@ -61,6 +61,7 @@ sudo cp "$RESTORE_DIR/hosts" /etc/hosts
 
 sudo cp "$RESTORE_DIR/crypttab" /etc/crypttab
 sudo tee -a /etc/fstab < "$RESTORE_DIR/fstab_snippet" > /dev/null
+sudo cp -r "$RESTORE_DIR/luks-keys/." /etc/luks-keys/
 
 # weryfikacja fstab
 sudo systemctl daemon-reload

@@ -18,7 +18,7 @@ step1_packages() {
             i3-wm i3blocks i3lock i3status
             git vim neovim ghostty
             unzip curl gnupg rsync htop
-            pv tar fzf stow
+            pv tar fzf stow docker
             rofi feh redshift maim xclip
             xdotool ddcutil lm_sensors smartmontools
             openvpn networkmanager network-manager-applet
@@ -34,6 +34,8 @@ step1_packages() {
         sudo pacman -S --needed --noconfirm libreoffice-still
         sudo systemctl enable NetworkManager
         sudo localectl set-keymap pl
+        sudo systemctl enable --now docker.service
+        sudo usermod -aG docker $(whoami)
     fi
     if [ "$DISTRO" = "fedora" ]; then
         sudo dnf copr enable -y scottames/ghostty

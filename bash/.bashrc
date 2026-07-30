@@ -76,6 +76,15 @@ extract() {
     done
 }
 
+pac() {
+  local pkg
+  pkg=$(pacman -Slq | fzf --multi --preview 'pacman -Si {}') && sudo pacman -S --needed $pkg
+}
+
+ypac() {
+  local pkg
+  pkg=$(yay -Slq | fzf --multi --preview 'yay -Si {}') && yay -S --needed $pkg
+}
 
 
 # >>> tmux-manager <

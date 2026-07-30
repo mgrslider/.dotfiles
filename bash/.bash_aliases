@@ -7,4 +7,4 @@ alias adb-read-allprop='adb shell getprop'
 alias mkdir='mkdir -p'
 alias cp='cp -i'
 alias less='less -R'
-
+alias unlockme='sudo faillock --user $(whoami) --reset'

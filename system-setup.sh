@@ -54,7 +54,7 @@ step1_packages() {
     if [ "$DISTRO" = "debian" ]; then
         sudo apt update
         sudo apt install -y \
-            alacritty i3 i3blocks git vim neovim stow fzf \
+            ghostty i3 i3blocks git vim neovim stow fzf \
             unzip curl gnupg rsync htop \
             rofi feh redshift maim xclip \
             xdotool ddcutil lm-sensors smartmontools network-manager \
@@ -71,7 +71,6 @@ step1_packages() {
         sudo apt install -y nvidia-driver nvidia-settings
         sudo apt install -y steam-installer
         curl -sS https://starship.rs/install.sh | sh -s -- -y
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
     fi
 }
 

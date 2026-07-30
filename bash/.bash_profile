@@ -11,6 +11,6 @@ export DIARY_INTERVAL=10
 
 [[ -f ~/.bashrc ]] && . ~/.bashrc
 
-# if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ]; then
-  # exec startx
-# fi
+if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ]; then
+  exec startx
+fi

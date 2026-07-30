@@ -86,7 +86,7 @@ step2_fetch_dotfiles() {
 step3_install_dotfiles() {
     echo "==> [3/4] Instalacja dotfiles"
     cd "$HOME/.dotfiles"
-    ./install.sh
+    ./update_stow.sh
     cd "$HOME"
 }
 

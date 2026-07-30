@@ -24,10 +24,8 @@ copy_item() {
   [ -e "$src" ] || { echo "  -> $label: pomijam (brak $src)"; return 0; }
   local size=$(du -sb "$src" 2>/dev/null | cut -f1)
   echo "  -> $label ($(du -sh "$src" | cut -f1))"
-  mkdir -p "$dst"                    # <-- to naprawia błąd
-  tar -C "$(dirname "$src")" -cf - "$(basename "$src")" \
-    | pv -s "$size" \
-    | tar -C "$dst" -xf -
+  mkdir -p "$dst"
+  tar -C "$src" -cf - . | pv -s "$size" | tar -C "$dst" -xf -
 }
 
 RESTORE_DIR=~/backup_restore
@@ -49,7 +47,18 @@ chmod 644 ~/.ssh/*.pub 2>/dev/null || true
 git -C ~/.dotfiles remote set-url origin git@github.com:mgrslider/.dotfiles.git
 
 # OpenVPN
-sudo cp -r "$RESTORE_DIR/openvpn" /etc/openvpn
+sudo mkdir -p /etc/openvpn
+sudo cp -r "$RESTORE_DIR/openvpn/." /etc/openvpn/
+USER_NAME="${SUDO_USER:-$USER}"
+RULE_FILE="/etc/sudoers.d/openvpn-i3"
+
+cat > /tmp/openvpn-i3 <<EOF
+$USER_NAME ALL=(root) NOPASSWD: /usr/bin/systemctl start openvpn-client@*, /usr/bin/systemctl stop openvpn-client@*, /usr/bin/systemctl is-active openvpn-client@*, /bin/ls /etc/openvpn/client/
+EOF
+# Walidacja składni przed instalacją
+sudo visudo -c -f /tmp/openvpn-i3
+sudo install -m 440 -o root -g root /tmp/openvpn-i3 "$RULE_FILE"
+rm /tmp/openvpn-i3
 
 # Thunderbird
 copy_item "$RESTORE_DIR/thunderbird" ~/.thunderbird "thunderbird"
@@ -63,6 +72,7 @@ sudo cp "$RESTORE_DIR/hosts" /etc/hosts
 
 sudo cp "$RESTORE_DIR/crypttab" /etc/crypttab
 sudo tee -a /etc/fstab < "$RESTORE_DIR/fstab_snippet" > /dev/null
+sudo mkdir -p /etc/luks-keys
 sudo cp -r "$RESTORE_DIR/luks-keys/." /etc/luks-keys/
 
 # weryfikacja fstab

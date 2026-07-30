@@ -50,6 +50,10 @@ git -C ~/.dotfiles remote set-url origin git@github.com:mgrslider/.dotfiles.git
 sudo mkdir -p /etc/openvpn
 sudo cp -r "$RESTORE_DIR/openvpn/." /etc/openvpn/
 sudo setfacl -m u:$USER:rx /etc/openvpn/client/
+# setup sudoers for vpns
+echo "$USER ALL=(root) NOPASSWD: /usr/bin/systemctl start openvpn-client@*, /usr/bin/systemctl stop openvpn-client@*, /usr/bin/ls /etc/openvpn/client/" | sudo tee /etc/sudoers.d/openvpn-i3 > /dev/null
+sudo chmod 440 /etc/sudoers.d/openvpn-i3
+sudo visudo -c
 
 # Thunderbird
 copy_item "$RESTORE_DIR/thunderbird" ~/.thunderbird "thunderbird"

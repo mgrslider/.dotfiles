@@ -26,6 +26,7 @@ step1_packages() {
             rclone pavucontrol wireplumber
             pipewire pipewire-pulse pipewire-alsa 
             xorg-xinit xorg-server
+            gnome-disk-utility
             bash-completion scrcpy starship
             tree-sitter tree-sitter-cli
             ttf-nerd-fonts-symbols

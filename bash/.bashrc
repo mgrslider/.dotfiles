@@ -77,13 +77,15 @@ extract() {
 }
 
 pac() {
-  local pkg
-  pkg=$(pacman -Slq | fzf --multi --preview 'pacman -Si {}') && sudo pacman -S --needed $pkg
+    local pkg
+    pkg=$(pacman -Slq | fzf --multi --preview 'pacman -Si {}') || return
+    sudo pacman -S --needed $pkg && echo "Zainstalowano $pkg"
 }
 
 ypac() {
-  local pkg
-  pkg=$(yay -Slq | fzf --multi --preview 'yay -Si {}') && yay -S --needed $pkg
+    local pkg
+    pkg=$(yay -Slq | fzf --multi --preview 'yay -Si {}') || return
+    yay -S --needed $pkg && echo "Zainstalowano: $pkg"
 }
 
 

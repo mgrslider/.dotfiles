@@ -45,6 +45,8 @@ cp -r "$RESTORE_DIR/ssh" ~/.ssh
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/* 2>/dev/null || true
 chmod 644 ~/.ssh/*.pub 2>/dev/null || true
+# Fix remove dla .dotfiles
+git -C ~/.dotfiles remote set-url origin git@github.com:mgrslider/.dotfiles.git
 
 # OpenVPN
 sudo cp -r "$RESTORE_DIR/openvpn" /etc/openvpn

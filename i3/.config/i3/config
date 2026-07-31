@@ -35,6 +35,8 @@ exec_always --no-startup-id ~/.config/i3blocks/scripts/volume_watch.sh
 exec_always --no-startup-id ~/.config/i3blocks/scripts/generate_vpn_blocks.sh
 # This is needed for programs with sudo prompt
 exec --no-startup-id lxpolkit
+# dark theme for gnome apps
+exec --no-startup-id /usr/lib/xdg-desktop-portal-gtk
 
 
 set $refresh_i3status killall -SIGUSR1 i3status

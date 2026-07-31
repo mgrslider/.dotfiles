@@ -28,6 +28,7 @@ step1_packages() {
             xorg-xinit xorg-server
             gnome-disk-utility
             bash-completion scrcpy starship
+            xdg-desktop-portal-gtk
             tree-sitter tree-sitter-cli
             ttf-nerd-fonts-symbols
         )

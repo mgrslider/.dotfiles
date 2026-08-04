@@ -17,7 +17,7 @@ interval=5
 
 [cpu_temperature]
 label=cpu_temp:
-command=sh -c 'temp=$(cat /sys/class/thermal/thermal_zone0/temp); temp=$((temp/1000)); if [ $temp -ge 70 ]; then color="#FF0000"; elif [ $temp -ge 50 ]; then color="#FFFF00"; else color="#00FF00"; fi; printf "$temp °C\n\n$color"'
+command=~/.config/i3blocks/scripts/cpu_temp.sh
 format=$label $output
 interval=5
 

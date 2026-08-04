@@ -172,7 +172,8 @@ assign [class="jetbrains-studio"] → number 3
 assign [class="Signal"] → number 8
 assign [class="discord"] → number 9
 assign [class="Mail"] → number 8
-assign [class="thunderbird"] → number 7
+assign [class="thunderbird"] 7
+# assign [class="thunderbird"] → number 7
 
 # bindsym Mod4+Shift+l exec "i3lock -c 000000 -i ~/Pictures/wallpapers/mii_dark_big2.png ; systemctl suspend"
 bindsym Mod1+k exec "gsimplecal"
@@ -181,17 +182,15 @@ bindsym Mod1+c exec "gnome-calculator"
 set $Locker i3lock -c 000000 -i ~/Pictures/wallpapers/mii_dark_big2.png && sleep 1
 bindsym Mod1+l exec --no-startup-id $Locker 
 
-for_window [workspace=$ws2] layout stacking
+for_window [workspace=$ws2] layout floating
 for_window [workspace=$ws3] layout stacking
 for_window [class="Keepassxc"] floating enable
 for_window [class="Gnome-calculator"] floating enable
 
-exec --no-startup-id i3-msg 'workspace 7; exec --no-startup-id signal-desktop; workspace 7'
-exec --no-startup-od i3-msg 'workspace 7; exec --no-startup-id discord; workspace 9'
-exec --no-startup-id i3-msg 'workspace 7; exec --no-startup-id thunderbird; workspace 7'
-exec --no-startup-id i3-msg 'workspace 2; exec --no-startup-id firefox; workspace 2'
-exec --no-startup-id i3-msg 'workspace 3; exec --no-startup-id studio; workspace 3'
-exec --no-startup-id i3-msg 'workspace 1; exec --no-startup-id ghostty; workspace 1'
+exec --no-startup-id ghostty
+exec --no-startup-id signal-desktop
+exec --no-startup-id thunderbird
+exec --no-startup-id firefox
 
 
 exec --no-startup-id feh --no-fehbg --bg-fill ~/Pictures/wallpapers/mii_dark_big2.png

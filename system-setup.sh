@@ -30,7 +30,7 @@ step1_packages() {
             bash-completion scrcpy starship
             xdg-desktop-portal-gtk
             tree-sitter tree-sitter-cli
-            ttf-nerd-fonts-symbols
+            ttf-nerd-fonts-symbols polybar
         )
         sudo pacman -S --needed --noconfirm "${PACKAGES[@]}"
         sudo pacman -S --needed --noconfirm libreoffice-still

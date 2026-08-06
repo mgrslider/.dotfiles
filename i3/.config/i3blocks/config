@@ -3,6 +3,10 @@
 interval=1
 color=#FFFFFF
 
+[time]
+command=date '+%Y-%m-%d %H:%M:%S'
+interval=1
+
 [volume]
 label=volume 
 command=~/.config/i3blocks/scripts/volume.sh
@@ -33,9 +37,6 @@ command=free -b | awk '/Mem:/ {printf "%.1f / %.1f GB", $3/1000000000, $2/100000
 format=$label $output
 interval=5
 
-[time]
-command=date '+%Y-%m-%d %H:%M:%S'
-interval=1
 
 # BEGIN VPN AUTOGEN
 [vpn_gajdy]

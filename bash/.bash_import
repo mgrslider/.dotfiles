@@ -1,1 +1,12 @@
-export PATH=$PATH:~/.local/bin:~/zig:/usr/local/go/bin:~/go/bin:/opt/odin
+export EDITOR=nvim
+export VISUAL=nvim
+export XDG_CONFIG_HOME="$HOME/.config"
+export JAVA_HOME=/usr/lib/jvm/default
+export ANDROID_HOME="$HOME/Android/Sdk"
+export ANDROID_NDK_ROOT="$HOME/Android/Ndk/android-ndk-r27"
+export KOTLIN_HOME=/usr/bin/kotlinc
+export NVM_DIR="$HOME/.config/nvm"
+export DIARY_PATH=/work/notes/my-diary
+export DIARY_INTERVAL=10
+
+export PATH=$PATH:~/.local/bin:$ANDROID_HOME/platform-tools:$KOTLIN_HOME/bin:$ANDROID_HOME/build-tools

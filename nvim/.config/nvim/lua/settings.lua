@@ -1,6 +1,8 @@
 local opt = vim.opt
 
 vim.cmd.colorscheme("habamax")
+vim.cmd.highlight({ "Normal", "guibg=NONE" })
+vim.cmd.highlight({ "Normal", "ctermbg=NONE" })
 
 opt.number = true
 opt.relativenumber = true

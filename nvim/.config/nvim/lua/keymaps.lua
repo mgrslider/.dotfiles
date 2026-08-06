@@ -13,6 +13,7 @@ vim.keymap.set('n', '<C-k>', '<C-w>k', { desc = "Focus window above" })
 vim.keymap.set('n', '<C-h>', '<C-w>h', { desc = "Focus window to the left" })
 vim.keymap.set('n', '<C-l>', '<C-w>l', { desc = "Focus window to the right" })
 vim.keymap.set("n", "<leader>f", function() vim.lsp.buf.format({ async = true }) end, { desc = "Format buffer" })
+vim.keymap.set("n", "<leader>fj", ':%!jq .<CR>', { desc = "Format buffer" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 vim.keymap.set("x", "<leader>p", '"_dP', { desc = "Paste without yanking" })
 local term_buf = nil

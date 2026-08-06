@@ -1,3 +1,8 @@
 # https://ghostty.org/docs/config/reference
 window-decoration = none
 font-size = 10
+background-image = ~/arch0.jpg
+background-image-fit = cover
+background-image-opacity = 0.2
+background = #1C1C1C
+background-opacity = 0.5

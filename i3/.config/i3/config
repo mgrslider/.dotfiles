@@ -32,8 +32,6 @@ exec --no-startup-id nm-applet
 
 exec --no-startup-id setxkbmap pl
 exec_always --no-startup-id setxkbmap -option caps:escape
-exec_always --no-startup-id ~/.config/i3blocks/scripts/volume_watch.sh
-exec_always --no-startup-id ~/.config/i3blocks/scripts/generate_vpn_blocks.sh
 # This is needed for programs with sudo prompt
 exec --no-startup-id lxpolkit
 # dark theme for gnome apps
@@ -154,7 +152,7 @@ bindsym $mod+r mode "resize"
 #         status_command i3blocks
 #         position top
 # }
-exec_always --no-startup-id polybar-msg cmd restart ||  polybar main &
+exec_always --no-startup-id ~/.config/polybar/scripts/launch.sh
 
 
 workspace 1 output HDMI-1
@@ -172,6 +170,7 @@ assign [class="firefox"] → number 2
 assign [class="jetbrains-studio"] → number 3
 assign [class="signal"] → number 8
 assign [class="org.mozilla.Thunderbird"] number 7
+for_window [class="signal"] urgent
 
 # bindsym Mod4+Shift+l exec "i3lock -c 000000 -i ~/Pictures/wallpapers/mii_dark_big2.png ; systemctl suspend"
 bindsym Mod1+k exec "gsimplecal"
@@ -190,7 +189,7 @@ exec --no-startup-id signal-desktop
 # exec --no-startup-id thunderbird
 exec --no-startup-id firefox
 
-
+exec --no-startup-id dunst
 exec --no-startup-id feh --no-fehbg --bg-fill $wallpaper
 #required to run 
 #sudo nala install maim xclip xdotool

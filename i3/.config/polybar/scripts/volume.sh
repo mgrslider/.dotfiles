@@ -4,11 +4,18 @@ SINK="@DEFAULT_AUDIO_SINK@"
 print_vol() {
     status=$(wpctl get-volume "$SINK")
     if echo "$status" | grep -q "MUTED"; then
-        echo "volume muted"
+        echo ""
     else
-        echo "$status" | awk '{print "volume "int($2 * 100)"%"}'
+        vol=$(echo "$status" | awk '{print int($2 * 100)}')
+        if   [ "$vol" -eq 0 ];  then icon="󰝟"
+        elif [ "$vol" -lt 44 ]; then icon=""
+        else icon=" "
+        fi
+        echo "$icon $vol%"
+        # echo "$status" | awk '{print " "int($2 * 100)"%"}'
     fi
 }
+
 
 case "$1" in
     mute)   wpctl set-mute "$SINK" toggle ; exit 0 ;;

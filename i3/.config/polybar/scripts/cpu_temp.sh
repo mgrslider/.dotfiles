@@ -5,4 +5,4 @@ if   [ "$temp" -ge 70 ]; then color="#FF0000"
 elif [ "$temp" -ge 60 ]; then color="#FFAA00"
 else color="#00FF00"
 fi
-printf 'cpu_temp: %%{F%s}%s °C%%{F-}\n' "$color" "$temp"
+printf '%%{F%s}%s °C%%{F-}\n' "$color" "$temp"

@@ -25,12 +25,12 @@ step1_packages() {
             firefox thunderbird keepassxc nautilus
             rclone pavucontrol wireplumber
             pipewire pipewire-pulse pipewire-alsa 
-            xorg-xinit xorg-server
+            xorg-xinit xorg-server dunst
             gnome-disk-utility btop
             bash-completion scrcpy starship
-            xdg-desktop-portal-gtk
+            xdg-desktop-portal-gtk polybar
             tree-sitter tree-sitter-cli
-            ttf-nerd-fonts-symbols polybar
+            ttf-nerd-fonts-symbols ttf-jetbrains-mono-nerd 
         )
         sudo pacman -S --needed --noconfirm "${PACKAGES[@]}"
         sudo pacman -S --needed --noconfirm libreoffice-still

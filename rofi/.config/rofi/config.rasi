@@ -1,11 +1,83 @@
-/** Basic config file **/
+* {
+    background:   #1e222a;
+    foreground:   #E5E9F0;
+    bg-selected:  #2f343f;
+    accent:       #89b4fa;
+    grey:         #565c64;
+    background-color: transparent;
+    text-color:   @foreground;
+}
+
 
 configuration {
-  font : "Sora Regular 8";
+  kb-remove-to-eol: "";
+  kb-accept-entry: "Return,KP_Enter";
+  kb-row-down: "Down,Control+j";
+  kb-row-up: "Up,Control+k";
+  font: "Sora Regular 10";
   show-icons: true;
   icon-theme: "Papirus";
-  display-drun: "  ";
-  display-window: "﩯 ";
-  display-combi: "  ";
+  display-drun: "󰀻 ";
+  display-window: "󰖯 ";
+  display-combi: "󰕰 ";
+  drun-display-format: "{name}";
 }
-@theme "themes/sidetab-nord.rasi"
+
+window {
+    background-color: @background;
+    location: center;
+    anchor: center;
+    width: 600px;
+    border: 2px;
+    border-color: @bg-selected;
+    border-radius: 12px;
+    padding: 0;
+}
+
+mainbox {
+    spacing: 8px;
+    padding: 14px 10px;
+    children: [ inputbar, listview ];
+}
+
+inputbar {
+    children: [ prompt, entry ];
+    padding: 8px 10px;
+    background-color: @bg-selected;
+    border-radius: 8px;
+    spacing: 8px;
+}
+
+prompt { text-color: @accent; }
+
+entry {
+    placeholder: "Search";
+    placeholder-color: @grey;
+    cursor: text;
+}
+
+listview {
+    spacing: 3px;
+    scrollbar: false;
+    dynamic: true;
+    lines: 8;
+}
+
+element {
+    padding: 7px 10px;
+    border-radius: 8px;
+    spacing: 10px;
+}
+
+element selected {
+    background-color: @bg-selected;
+    text-color: @accent;
+}
+
+element-text   { vertical-align: 0.5; }
+element-icon   { size: 22px; vertical-align: 0.5; }
+element normal.normal,
+element alternate.normal {
+    background-color: @background;
+    text-color: @foreground;
+}

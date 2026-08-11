@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 DEFAULT_OUTPUT="$(date +'%Y-%m-%d_%H:%M:%S').log"
 OUTPUT_FILE="$DEFAULT_OUTPUT"

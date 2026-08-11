@@ -1,8 +1,7 @@
 # ~/.bash_profile
 
-[[ -f ~/.bashrc ]] && . ~/.bashrc
-
 if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ]; then
-  startx
-  exit
+    exec startx
 fi
+
+[[ -f ~/.bashrc ]] && . ~/.bashrc

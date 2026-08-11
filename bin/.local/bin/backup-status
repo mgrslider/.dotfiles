@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # backup-status — sprawdza stan backupów borgbackup
 set -euo pipefail
 

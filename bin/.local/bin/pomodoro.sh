@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "Rozpoczynamy 25-minutową sesję Pomodoro"
 sleep 1500 && notify-send "Pomodoro zakończone!" "Czas na 5-minutową przerwę" &

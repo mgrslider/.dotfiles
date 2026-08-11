@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Wrapper w PATH — deleguje do właściwego skryptu.
 # Dzięki temu shell RC i tmux.conf nie muszą znać pełnej ścieżki.
 exec bash "${HOME}/.config/tmux-manager/tmux-manager.sh" "$@"

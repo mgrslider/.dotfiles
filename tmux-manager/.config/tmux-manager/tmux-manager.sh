@@ -1,14 +1,7 @@
-#!/usr/bin/env bash
-# =============================================================================
-# tmux-manager.sh
-# =============================================================================
+#!/bin/bash
 
 CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/tmux-manager/config"
 [[ -f "$CONFIG_FILE" ]] && source "$CONFIG_FILE"
-
-# =============================================================================
-# POMOCNICZE
-# =============================================================================
 
 _session_name_from_path() {
     echo "$1" | sed 's|^/||; s|[/. ]|_|g'
@@ -30,10 +23,6 @@ _tmux_current_session() {
 _tmux_list_sessions() {
     tmux list-sessions -F "#{session_name}" 2>/dev/null
 }
-
-# =============================================================================
-# ZBIERANIE FOLDERÓW Z CONFIGA
-# =============================================================================
 
 _collect_dirs() {
     local -a scan_dirs exclude_dirs
@@ -76,10 +65,6 @@ _collect_dirs() {
     printf '%s\n' "${scan_dirs[@]}" | sort -u
 }
 
-# =============================================================================
-# 1. AUTO-RESUME
-# =============================================================================
-
 tmux_auto_resume() {
     [[ -n "$TMUX" ]] && return
     [[ -z "$TERM" || "$TERM" == "dumb" ]] && return
@@ -100,11 +85,6 @@ tmux_auto_resume() {
     [[ "$attached" == "0" ]] && exec tmux attach-session -t "$last"
 }
 
-# =============================================================================
-# 2. FUZZY FIND — drukuje wybraną ścieżkę na stdout
-#    Wywoływany przez display-popup; wynik odbiera tmux.conf przez run-shell
-# =============================================================================
-
 tmux_fzf_dirs_print() {
     local dirs
     dirs=$(_collect_dirs) || return 1
@@ -120,18 +100,12 @@ tmux_fzf_dirs_print() {
 }
 
 tmux_fzf_pick_and_open() {
-    # Wywoływany wewnątrz display-popup — zapisuje wybór do pliku tymczasowego
-    # a następnie wywołuje open-path już poza popupem przez tmux send-keys
     local tmp="$1"
     local dir
     dir=$(tmux_fzf_dirs_print) || return 0
     [[ -z "$dir" ]] && return 0
     echo "$dir" > "$tmp"
 }
-
-# =============================================================================
-# 3. OTWÓRZ / WZNÓW SESJĘ DLA ŚCIEŻKI
-# =============================================================================
 
 tmux_open_path() {
     local dir="$1"
@@ -154,10 +128,6 @@ tmux_open_path() {
         tmux attach-session -t "=$name"
     fi
 }
-
-# =============================================================================
-# 4. PICKER AKTYWNYCH SESJI
-# =============================================================================
 
 tmux_session_picker() {
     local sessions current selected
@@ -182,16 +152,8 @@ tmux_session_picker() {
     fi
 }
 
-# =============================================================================
-# 5. NAWIGACJA
-# =============================================================================
-
 tmux_next_session() { tmux switch-client -n; }
 tmux_prev_session() { tmux switch-client -p; }
-
-# =============================================================================
-# 6. NOWA SESJA Z NAZWĄ
-# =============================================================================
 
 tmux_new_named() {
     local name
@@ -206,10 +168,6 @@ tmux_new_named() {
         tmux switch-client -t "$name"
     fi
 }
-
-# =============================================================================
-# DISPATCHER
-# =============================================================================
 
 case "${1:-}" in
     auto-resume)     tmux_auto_resume ;;

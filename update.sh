@@ -38,19 +38,6 @@ done
 echo ""
 echo "Backup oryginałów w: $BACKUP_DIR"
 
-# --- Uruchom install-scripts ---
-if [ -d "$DOTFILES_DIR/install-scripts" ]; then
-    echo ""
-    echo "==> Uruchamiam install-scripts..."
-    for script in "$DOTFILES_DIR"/install-scripts/*.sh; do
-        [ -f "$script" ] || continue
-        echo "  -> $(basename $script)"
-        bash "$script"
-    done
-fi
-
-echo ""
-
 i3-msg restart || true
 
 echo "==> gotowe!"

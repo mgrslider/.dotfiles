@@ -1,32 +1,29 @@
-# If not running interactively, don't do anything (leave this at the top of this file)
-[[ $- != *i* ]] && return
+[[ -o interactive ]] || return
 
 [ -f ~/.dotfiles/bash/.bash_aliases ] && source ~/.dotfiles/bash/.bash_aliases
-[ -f ~/.dotfiles/bash/.bash_import ] && source ~/.dotfiles/bash/.bash_import
+[ -f ~/.dotfiles/bash/.bash_import ]  && source ~/.dotfiles/bash/.bash_import
 
-# Historia
-export HISTFILESIZE=10000
-export HISTSIZE=10000
-export HISTTIMEFORMAT="%F %T "
-export HISTCONTROL=erasedups:ignoredups:ignorespace
-shopt -s histappend
-PROMPT_COMMAND='history -a'
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt extended_history          
+setopt inc_append_history        
+setopt hist_ignore_dups          
+setopt hist_ignore_all_dups      
+setopt hist_ignore_space         
+setopt hist_reduce_blanks
+# podgląd z datą: history -i   /   history -i 1
 
-# COMPLETION
-if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-fi
+autoload -Uz compinit && compinit
+autoload -Uz bashcompinit && bashcompinit   # dla completion pisanych pod bash
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'   # completion-ignore-case
+setopt auto_list                                            # show-all-if-ambiguous
+unsetopt list_ambiguous
+setopt auto_menu
 
-if [[ $- == *i* ]]; then
-    bind "set completion-ignore-case on"
-    bind "set show-all-if-ambiguous on"
-fi
-
-# KOLORY
 export CLICOLOR=1
 export LS_COLORS='no=00:fi=00:di=00;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:ex=01;32:*.tar=01;31:*.tgz=01;31:*.zip=01;31:*.gz=01;31:*.bz2=01;31:*.deb=01;31:*.rpm=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.png=01;35:*.mp3=01;35:*.wav=01;35:'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 
 export LESS_TERMCAP_mb=$'\E[01;31m'
 export LESS_TERMCAP_md=$'\E[01;31m'
@@ -45,7 +42,8 @@ git() {
 }
 
 update-source() {
-    source ~/.bashrc
+    source ~/.zshrc
+    echo "zsh source files updated"
 }
 
 extract() {
@@ -72,31 +70,35 @@ extract() {
 }
 
 pac() {
-    local pkg
-    pkg=$(pacman -Slq | fzf --multi --preview 'pacman -Si {}') || return
-    sudo pacman -S --needed $pkg && echo "Zainstalowano $pkg"
+    local out
+    local -a pkgs
+    out=$(pacman -Slq | fzf --multi --preview 'pacman -Si {}') || return
+    pkgs=("${(f)out}")
+    (( ${#pkgs} )) || return
+    sudo pacman -S --needed "${pkgs[@]}" && echo "Zainstalowano: ${pkgs[*]}"
 }
 
 ypac() {
-    local pkg
-    pkg=$(yay -Slq | fzf --multi --preview 'yay -Si {}') || return
-    yay -S --needed $pkg && echo "Zainstalowano: $pkg"
+    local out
+    local -a pkgs
+    out=$(yay -Slq | fzf --multi --preview 'yay -Si {}') || return
+    pkgs=("${(f)out}")
+    (( ${#pkgs} )) || return
+    yay -S --needed "${pkgs[@]}" && echo "Zainstalowano: ${pkgs[*]}"
 }
 
-
-# >>> tmux-manager <
+# >>> tmux-manager 
 if [[ -x "$HOME/.local/bin/tmux-manager" ]]; then
     tmux-manager auto-resume
     if [[ -z "$TMUX" ]]; then
-        if [[ -n "$ZSH_VERSION" ]]; then
-            _tmux_manager_fzf() { tmux-manager fzf-dirs-print; zle reset-prompt; }
-            zle -N _tmux_manager_fzf
-            bindkey '^F' _tmux_manager_fzf
-        else
-            bind -x '"\C-f": tmux-manager fzf-dirs-print'
-        fi
+        _tmux_manager_fzf() {
+            tmux-manager fzf-dirs-print
+            zle reset-prompt
+        }
+        zle -N _tmux_manager_fzf
+        bindkey '^F' _tmux_manager_fzf
     fi
 fi
-# <<< tmux-manager <
+# <<< tmux-manager 
 
-eval "$(starship init bash)"
+eval "$(starship init zsh)"

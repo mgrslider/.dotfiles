@@ -72,7 +72,9 @@ tmux_auto_resume() {
     defaultName=$(_session_name_from_path "$HOME")
     # Brak sesji — stwórz domyślną i wejdź
     if ! tmux list-sessions &>/dev/null; then
-        exec tmux new-session -s "$defaultName" -c "$HOME"
+        tmux new-session -s "$defaultName" -c "$HOME"
+        tmux set-option -t "$name" @root_path "$HOME"
+        exec tmux attach-session -t "$defaultName"
     fi
 
     local last attached
@@ -114,6 +116,7 @@ tmux_open_path() {
 
     if ! tmux has-session -t "=$name" 2>/dev/null; then
         tmux new-session -ds "$name" -c "$dir"
+        tmux set-option -t "$name" @root_path "$dir"
     fi
 
     if _is_in_tmux; then
@@ -165,8 +168,14 @@ tmux_new_named() {
         tmux switch-client -t "$name"
     else
         tmux new-session -ds "$name" -c "$HOME"
+        tmux set-option -t "$name" @root_path "$HOME"
         tmux switch-client -t "$name"
     fi
+}
+
+_tmux_root_path() {
+    current=$(_tmux_current_session)
+    tmux show-option -qv -t "$current" @root_path
 }
 
 case "${1:-}" in
@@ -178,6 +187,7 @@ case "${1:-}" in
     next-session)    tmux_next_session ;;
     prev-session)    tmux_prev_session ;;
     new-named)       tmux_new_named ;;
+    root_path)       _tmux_root_path ;;
     *)
         echo "Użycie: tmux-manager <komenda>"
         echo "  auto-resume     — wznów ostatnią sesję"
@@ -187,5 +197,6 @@ case "${1:-}" in
         echo "  next-session    — następna sesja"
         echo "  prev-session    — poprzednia sesja"
         echo "  new-named       — nowa sesja z nazwą"
+        echo "  root_path       - główny katalog sesji"
         ;;
 esac

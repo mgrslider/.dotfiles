@@ -21,6 +21,7 @@ vim.pack.add({
 
     "https://github.com/mbbill/undotree",
     "https://github.com/ibhagwan/fzf-lua",
+    'https://github.com/MeanderingProgrammer/render-markdown.nvim',
 })
 
 -- setup fzf
@@ -149,6 +150,7 @@ do
 end
 
 require("mason").setup({})
+require('render-markdown').setup({})
 
 local default_group = vim.api.nvim_create_augroup("user_config", {})
 

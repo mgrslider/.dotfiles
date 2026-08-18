@@ -1,4 +1,4 @@
-nvim/.config/nvim/plugged/*
+./nvim/nvim/nvim-pack-lock.json
 *.tar.gz.gpg
 *.tar.gpg
 vpn.list

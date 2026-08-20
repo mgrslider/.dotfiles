@@ -10,6 +10,7 @@
 
 set $mod Mod4
 set $wallpaper ~/arch0.jpg
+set $lock-wallpaper ~/arch-lock.png
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -36,6 +37,7 @@ exec_always --no-startup-id setxkbmap -option caps:escape
 exec --no-startup-id lxpolkit
 # dark theme for gnome apps
 exec --no-startup-id /usr/lib/xdg-desktop-portal-gtk
+
 
 
 # Konfiguracja PipeWire (wpctl) dla i3blocks
@@ -176,8 +178,7 @@ for_window [class="signal"] urgent
 bindsym Mod1+k exec "gsimplecal"
 bindsym Mod1+c exec "gnome-calculator"
  
-set $Locker i3lock -c 000000 -i $wallpaper && sleep 1
-bindsym Mod1+l exec --no-startup-id $Locker 
+bindsym Ctrl+Mod1+l exec i3lock -c 000000 -i $lock-wallpaper && sleep 1
 
 for_window [workspace=$ws2] layout floating
 for_window [workspace=$ws3] layout stacking
@@ -190,7 +191,7 @@ exec --no-startup-id signal-desktop
 exec --no-startup-id firefox
 
 exec --no-startup-id dunst
-exec --no-startup-id feh --no-fehbg --bg-fill $wallpaper
+exec --no-startup-id feh --no-fehbg --bg-center $wallpaper
 #required to run 
 #sudo nala install maim xclip xdotool
 ## Screenshots

@@ -150,7 +150,9 @@ do
 end
 
 require("mason").setup({})
-require('render-markdown').setup({})
+require('render-markdown').setup({
+    completions = { lsp = { enabled = true } },
+})
 
 local default_group = vim.api.nvim_create_augroup("user_config", {})
 
